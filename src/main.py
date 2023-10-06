@@ -1,4 +1,5 @@
-from functions import *
+from src.functions import *
+
 
 def main():
     operations_List = get_json_file()

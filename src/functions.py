@@ -4,7 +4,7 @@ import json
 def get_json_file():
     """ Загружаем файл с банковскими операциями. """
 
-    with open(r'H:\PycharmProjects.\new_backend_course_work\src\operations.json', "r", encoding="utf-8") as file:
+    with open('operations.json', "r", encoding="utf-8") as file:
         file_ = json.load(file)
     return file_
 
@@ -13,12 +13,12 @@ def sort_ex(json_file):
     """ Отсекаем не EXECUTED операции. """
     ex_list = []
     for operation in json_file:
-        if "state" in operation and "from" in operation:
+        if "state" in operation:  # убрал блок (and "from" in operation)
             if operation["state"] == "EXECUTED":
                 ex_list.append(operation)
     return ex_list
 
-r'H:\PycharmProjects.\new_backend_course_work\src\operations.json'
+
 def get_date(date_str, mode):
     """ берет строку date и возращает дату/вермя/значение даты"""
     date = date_str.split('T')[0]
@@ -46,18 +46,20 @@ def sort_date(json_file_ex):
 
 def mask_operation(operation_ex):
     """ Маскирует номер карт перевода звездочками. """
-    from_ = operation_ex["from"]
+    from_ = operation_ex.get("from")  # заменил получение значения из from, так как сейчас оно может отсутствовать.
+    # Если мы получаем через get значение и его нет в словаре, то запишется None
     to = operation_ex["to"]
     desc_from_ = ""
     desc_to = ""
     num_from_str = ""
     num_to_str = ""
 
-    for symbol in from_:
-        if symbol.isdigit():
-            num_from_str += symbol
-        else:
-            desc_from_ += symbol
+    if from_:  # добавил блок, что если from_ не является None, то делаем действия, иначе оставляем пустой строкой
+        for symbol in from_:
+            if symbol.isdigit():
+                num_from_str += symbol
+            else:
+                desc_from_ += symbol
     for symbol in to:
         if symbol.isdigit():
             num_to_str += symbol
@@ -71,6 +73,8 @@ def mask_operation(operation_ex):
         num_from_str = num_from_str.replace(num_from_str[6:16], "**********")
         num_from_list = [num_from_str[0:4], num_from_str[4:8], num_from_str[8:12],
                          num_from_str[12:16], num_from_str[16:20]]
+    else:
+        num_from_list = []  # Так как num_from_str может быть пустой строкой, то создадим список num_from_list пустым.
 
     if len(num_to_str) == 16:
         num_to_str = num_to_str.replace(num_to_str[:12], "************")
